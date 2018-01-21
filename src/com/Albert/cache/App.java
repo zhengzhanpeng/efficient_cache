@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.zzp.cache;
+package com.Albert.cache;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -31,26 +31,26 @@ import java.util.function.Function;
 public class App {
     public static void main(String[] args) {
 
-        CacheResult<Long, Long> cacheResult = EfficientCacheResult.<Long, Long>createNeedComputeFunction(getTestComputeMethod());
+        CacheResult<Long, Long> cacheResult = EfficientCacheResult.<Long, Long>createNeedComputeFunction(get_A_TestComputeMethod());
 
-        final CountDownLatch startGate1 = new CountDownLatch(1);
-        final CountDownLatch endGate1 = new CountDownLatch(1);
+        final CountDownLatch firstComputesStartControl = new CountDownLatch(1);
+        final CountDownLatch firstComputesEndMark = new CountDownLatch(1);
 
-        final CountDownLatch startGate2 = new CountDownLatch(1);
-        final CountDownLatch endGate2 = new CountDownLatch(1);
+        final CountDownLatch secondComputesStartControl = new CountDownLatch(1);
+        final CountDownLatch secondComputesEndMark = new CountDownLatch(1);
 
         final long computeFromOneUntilThisValue = 100000L;
 
         final ExecutorService executor = Executors.newFixedThreadPool(1);
-        executor.execute(runManyComputeStartTimeIsControlled(cacheResult, startGate1, endGate1, computeFromOneUntilThisValue));
-        getFirstExecuteTime(startGate1, endGate1);
+        executor.execute(runManyComputeAndStartTimeIsControlled(cacheResult, firstComputesStartControl, firstComputesEndMark, computeFromOneUntilThisValue));
+        getFirstExecuteTime(firstComputesStartControl, firstComputesEndMark);
 
-        executor.execute(runManyComputeStartTimeIsControlled(cacheResult, startGate2, endGate2, computeFromOneUntilThisValue));
-        getSecondExecuteTime(startGate2, endGate2);
+        executor.execute(runManyComputeAndStartTimeIsControlled(cacheResult, secondComputesStartControl, secondComputesEndMark, computeFromOneUntilThisValue));
+        getSecondExecuteTime(secondComputesStartControl, secondComputesEndMark);
         executor.shutdown();
     }
 
-    private static Function<Long, Long> getTestComputeMethod() {
+    private static Function<Long, Long> get_A_TestComputeMethod() {
         return a -> {
             long result = 0;
             for (long i = 1L; i <= a; i++) {
@@ -88,7 +88,7 @@ public class App {
         }
     }
 
-    private static Runnable runManyComputeStartTimeIsControlled(CacheResult<Long, Long> cacheResult, CountDownLatch startGate2, CountDownLatch endGate2, long computeFromOneUntilThis) {
+    private static Runnable runManyComputeAndStartTimeIsControlled(CacheResult<Long, Long> cacheResult, CountDownLatch startGate2, CountDownLatch endGate2, long computeFromOneUntilThis) {
         return () -> {
             try {
                 startGate2.await();

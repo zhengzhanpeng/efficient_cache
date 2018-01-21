@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.zzp.cache;
+package com.Albert.cache;
 
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -37,8 +37,8 @@ public class EfficientCacheResult<Result, Key> implements CacheResult<Result, Ke
         this.cache = new ConcurrentHashMap<>();
     }
 
-    public static <Result, Key> EfficientCacheResult createNeedComputeFunction(Function<Key, Result> computeFunction) {
-        return new EfficientCacheResult<>(computeFunction);
+    public static <Result, Key> EfficientCacheResult createNeedComputeFunction(Function<Key, Result> computeMethod) {
+        return new EfficientCacheResult<>(computeMethod);
     }
 
     @Override
