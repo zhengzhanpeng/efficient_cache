@@ -17,14 +17,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.Albert.cache;
+package main.java.com.Albert.cache;
 
 /**
  * @author Albert
  * @create 2018-01-10 19:26
  */
-public interface CacheResult<Result, Key> {
+public interface CacheResult<ResultT, KeyT> {
 
-    Result compute(Key key);
+    ResultT compute(KeyT keyT);
 
 }

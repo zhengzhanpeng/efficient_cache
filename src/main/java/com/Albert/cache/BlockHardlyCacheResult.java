@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.Albert.cache;
+package main.java.com.Albert.cache;
 
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -26,29 +26,29 @@ import java.util.function.Function;
  * @author Albert
  * @create 2018-01-10 19:44
  */
-public class BlockHardlyCacheResult<Result, Key> implements CacheResult<Result, Key> {
+public class BlockHardlyCacheResult<ResultT, KeyT> implements CacheResult<ResultT, KeyT> {
     private final boolean IS_NOT_RETURN = true;
-    private final ConcurrentHashMap<Key, Future<Result>> cacheResult;
+    private final ConcurrentHashMap<KeyT, Future<ResultT>> cacheResult;
 
-    private final Function<Key, Result> computeMethod;
+    private final Function<KeyT, ResultT> computeMethod;
 
-    private BlockHardlyCacheResult(Function<Key, Result> computeMethod) {
+    private BlockHardlyCacheResult(Function<KeyT, ResultT> computeMethod) {
         this.computeMethod = computeMethod;
         this.cacheResult = new ConcurrentHashMap<>();
     }
 
-    public static <Result, Key> BlockHardlyCacheResult createNeedComputeFunction(Function<Key, Result> computeMethod) {
+    public static <ResultT, KeyT> BlockHardlyCacheResult createNeedComputeFunction(Function<KeyT, ResultT> computeMethod) {
         return new BlockHardlyCacheResult<>(computeMethod);
     }
 
     @Override
-    public Result compute(final Key key) {
+    public ResultT compute(final KeyT keyT) {
         while (IS_NOT_RETURN) {
-            Future<Result> resultFuture = cacheResult.get(key);
+            Future<ResultT> resultFuture = cacheResult.get(keyT);
             if (isNotExitResult(resultFuture)) {
-                Callable<Result> putKeyComputeMethod = () -> computeMethod.apply(key);
-                FutureTask<Result> runWhenResultFutureNull = new FutureTask<>(putKeyComputeMethod);
-                resultFuture = cacheResult.putIfAbsent(key, runWhenResultFutureNull);
+                Callable<ResultT> putKeyComputeMethod = () -> computeMethod.apply(keyT);
+                FutureTask<ResultT> runWhenResultFutureNull = new FutureTask<>(putKeyComputeMethod);
+                resultFuture = cacheResult.putIfAbsent(keyT, runWhenResultFutureNull);
                 if (isNotExitResult(resultFuture)) {
                     resultFuture = runWhenResultFutureNull;
                     runWhenResultFutureNull.run();
@@ -64,7 +64,7 @@ public class BlockHardlyCacheResult<Result, Key> implements CacheResult<Result, 
         }
     }
 
-    private boolean isNotExitResult(Future<Result> resultFuture) {
+    private boolean isNotExitResult(Future<ResultT> resultFuture) {
         return resultFuture == null;
     }
 }
