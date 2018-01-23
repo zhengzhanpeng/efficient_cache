@@ -26,29 +26,29 @@ import java.util.function.Function;
  * @author Albert
  * @create 2018-01-10 19:44
  */
-public class EfficientCacheResult<Result, Key> implements CacheResult<Result, Key> {
+public class BlockHardlyCacheResult<Result, Key> implements CacheResult<Result, Key> {
     private final boolean IS_NOT_RETURN = true;
-    private final ConcurrentHashMap<Key, Future<Result>> cache;
+    private final ConcurrentHashMap<Key, Future<Result>> cacheResult;
 
     private final Function<Key, Result> computeMethod;
 
-    private EfficientCacheResult(Function<Key, Result> computeMethod) {
+    private BlockHardlyCacheResult(Function<Key, Result> computeMethod) {
         this.computeMethod = computeMethod;
-        this.cache = new ConcurrentHashMap<>();
+        this.cacheResult = new ConcurrentHashMap<>();
     }
 
-    public static <Result, Key> EfficientCacheResult createNeedComputeFunction(Function<Key, Result> computeMethod) {
-        return new EfficientCacheResult<>(computeMethod);
+    public static <Result, Key> BlockHardlyCacheResult createNeedComputeFunction(Function<Key, Result> computeMethod) {
+        return new BlockHardlyCacheResult<>(computeMethod);
     }
 
     @Override
     public Result compute(final Key key) {
         while (IS_NOT_RETURN) {
-            Future<Result> resultFuture = cache.get(key);
+            Future<Result> resultFuture = cacheResult.get(key);
             if (isNotExitResult(resultFuture)) {
                 Callable<Result> putKeyComputeMethod = () -> computeMethod.apply(key);
                 FutureTask<Result> runWhenResultFutureNull = new FutureTask<>(putKeyComputeMethod);
-                resultFuture = cache.putIfAbsent(key, runWhenResultFutureNull);
+                resultFuture = cacheResult.putIfAbsent(key, runWhenResultFutureNull);
                 if (isNotExitResult(resultFuture)) {
                     resultFuture = runWhenResultFutureNull;
                     runWhenResultFutureNull.run();

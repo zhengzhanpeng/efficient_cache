@@ -31,16 +31,14 @@ import java.util.function.Function;
 public class App {
     public static void main(String[] args) {
 
-        CacheResult<Long, Long> cacheResult = EfficientCacheResult.<Long, Long>createNeedComputeFunction(get_A_TestComputeMethod());
+        CacheResult<Long, Long> cacheResult = BlockHardlyCacheResult.<Long, Long>createNeedComputeFunction(get_A_TestComputeMethod());
 
         final CountDownLatch firstComputesStartControl = new CountDownLatch(1);
         final CountDownLatch firstComputesEndMark = new CountDownLatch(1);
-
         final CountDownLatch secondComputesStartControl = new CountDownLatch(1);
         final CountDownLatch secondComputesEndMark = new CountDownLatch(1);
 
         final long computeFromOneUntilThisValue = 100000L;
-
         final ExecutorService executor = Executors.newFixedThreadPool(1);
         executor.execute(runManyComputeAndStartTimeIsControlled(cacheResult, firstComputesStartControl, firstComputesEndMark, computeFromOneUntilThisValue));
         getFirstExecuteTime(firstComputesStartControl, firstComputesEndMark);
