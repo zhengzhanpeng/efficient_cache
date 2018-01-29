@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package main.java.com.Albert.cache;
+package com.Albert.cache;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -30,7 +30,6 @@ import java.util.function.Function;
  */
 public class App {
     public static void main(String[] args) {
-
         CacheResult<Long, Long> cacheResult = BlockHardlyCacheResult.<Long, Long>createNeedComputeFunction(get_A_TestComputeMethod());
 
         final CountDownLatch firstComputesStartControl = new CountDownLatch(1);
