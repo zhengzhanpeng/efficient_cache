@@ -23,7 +23,7 @@ package com.Albert.cache;
  * @author Albert
  * @create 2018-01-10 19:26
  */
-public interface Compute<ResultT, KeyT> {
+public interface Compute<KeyT, ResultT> {
 
     ResultT compute(KeyT keyT);
 

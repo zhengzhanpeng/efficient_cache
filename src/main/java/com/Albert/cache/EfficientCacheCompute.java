@@ -26,7 +26,7 @@ import java.util.function.Function;
  * @author Albert
  * @create 2018-01-10 19:44
  */
-public class EfficientCacheCompute<ResultT, KeyT> implements Compute<ResultT, KeyT> {
+public class EfficientCacheCompute<KeyT, ResultT> implements Compute<KeyT, ResultT> {
     private final boolean IS_NOT_RETURN = true;
     private final ConcurrentHashMap<KeyT, Future<ResultT>> cacheResult;
 
@@ -37,7 +37,7 @@ public class EfficientCacheCompute<ResultT, KeyT> implements Compute<ResultT, Ke
         this.cacheResult = new ConcurrentHashMap<>();
     }
 
-    public static <ResultT, KeyT> EfficientCacheCompute createNeedComputeFunction(Function<KeyT, ResultT> computeMethod) {
+    public static <KeyT, ResultT> EfficientCacheCompute createNeedComputeFunction(Function<KeyT, ResultT> computeMethod) {
         return new EfficientCacheCompute<>(computeMethod);
     }
 
