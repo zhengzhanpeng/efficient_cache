@@ -46,9 +46,15 @@ public class EfficientCacheCompute<KeyT, ResultT> implements Compute<KeyT, Resul
         while (IS_NOT_RETURN) {
             Future<ResultT> resultFuture = cacheResult.get(keyT);
             if (isNotExitResult(resultFuture)) {
-                resultFuture = tryPutFutureToCacheAndRunCompute(keyT);
+                Callable<ResultT> computeMethodHavingPutKey = () -> computeMethod.apply(keyT);
+                FutureTask<ResultT> runWhenResultFutureNull = new FutureTask<>(computeMethodHavingPutKey);
+                resultFuture = cacheResult.putIfAbsent(keyT, runWhenResultFutureNull);
+                if (isNotExitResult(resultFuture)) {
+                    resultFuture = runWhenResultFutureNull;
+                    runWhenResultFutureNull.run();
+                }
             }
-            return getResultT(resultFuture);
+            return getResultWithTryCatch(resultFuture);
         }
     }
 
@@ -56,33 +62,7 @@ public class EfficientCacheCompute<KeyT, ResultT> implements Compute<KeyT, Resul
         return resultFuture == null;
     }
 
-    private Future<ResultT> tryPutFutureToCacheAndRunCompute(KeyT keyT) {
-        Message resultMessage_of_putToCache;
-        resultMessage_of_putToCache = tryPutFutureToCache(keyT);
-        return getFutureFromCacheAndRunComputeIfNecessary(resultMessage_of_putToCache);
-    }
-
-    private Message tryPutFutureToCache(KeyT keyT) {
-        Callable<ResultT> computeMethod_Of_PutTheKey = () -> computeMethod.apply(keyT);
-        FutureTask<ResultT> willPut = new FutureTask<>(computeMethod_Of_PutTheKey);
-        Future<ResultT> putResult = cacheResult.putIfAbsent(keyT, willPut);
-        return new Message(putResult, willPut);
-    }
-
-    private Future<ResultT> getFutureFromCacheAndRunComputeIfNecessary(Message message) {
-        if (isPutSuccess(message)) {
-            message.willPut.run();
-            return message.willPut;
-        } else {
-            return message.putResult;
-        }
-    }
-
-    private boolean isPutSuccess(Message message) {
-        return message.putResult == null;
-    }
-
-    private ResultT getResultT(Future<ResultT> resultTFuture) {
+    private ResultT getResultWithTryCatch(Future<ResultT> resultTFuture) {
         ResultT resultT = null;
         try {
             resultT = resultTFuture.get();
@@ -103,5 +83,26 @@ public class EfficientCacheCompute<KeyT, ResultT> implements Compute<KeyT, Resul
             this.willPut = willPut;
         }
 
+    }
+
+    public ResultT getCacheIfExist(KeyT key) {
+        Future<ResultT> resultTFuture = cacheResult.get(key);
+        ResultT result = null;
+        if (isExistResult(resultTFuture)) {
+            result = getResultWithTryCatch(resultTFuture);
+        }
+        return result;
+    }
+
+    private boolean isExistResult(Future<ResultT> resultTFuture) {
+        return resultTFuture != null;
+    }
+
+    public ConcurrentHashMap.KeySetView<KeyT, Future<ResultT>> getKeySetFromCacheResult() {
+        return cacheResult.keySet();
+    }
+
+    public void clearCache() {
+        cacheResult.clear();
     }
 }
