@@ -74,17 +74,7 @@ public class EfficientCacheCompute<KeyT, ResultT> implements Compute<KeyT, Resul
         return resultT;
     }
 
-    private class Message {
-        public final Future<ResultT> putResult;
-
-        public final FutureTask<ResultT> willPut;
-        public Message(Future<ResultT> putResult, FutureTask<ResultT> willPut) {
-            this.putResult = putResult;
-            this.willPut = willPut;
-        }
-
-    }
-
+    @Override
     public ResultT getCacheIfExist(KeyT key) {
         Future<ResultT> resultTFuture = cacheResult.get(key);
         ResultT result = null;
@@ -98,11 +88,18 @@ public class EfficientCacheCompute<KeyT, ResultT> implements Compute<KeyT, Resul
         return resultTFuture != null;
     }
 
+    @Override
     public ConcurrentHashMap.KeySetView<KeyT, Future<ResultT>> getKeySetFromCacheResult() {
         return cacheResult.keySet();
     }
 
+    @Override
     public void clearCache() {
         cacheResult.clear();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return cacheResult.isEmpty();
     }
 }

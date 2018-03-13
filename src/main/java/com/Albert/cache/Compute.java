@@ -19,6 +19,9 @@
  */
 package com.Albert.cache;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+
 /**
  * @author Albert
  * @create 2018-01-10 19:26
@@ -27,4 +30,11 @@ public interface Compute<KeyT, ResultT> {
 
     ResultT compute(KeyT keyT);
 
+    ResultT getCacheIfExist(KeyT key);
+
+    ConcurrentHashMap.KeySetView<KeyT, Future<ResultT>> getKeySetFromCacheResult();
+
+    void clearCache();
+
+    boolean isEmpty();
 }
