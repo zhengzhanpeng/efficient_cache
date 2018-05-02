@@ -23,7 +23,6 @@ import java.util.function.Function;
 
 /**
  * @author Albert
- * @create 2018-01-10 21:33
  */
 public class App {
     public static void main(String[] args) {
